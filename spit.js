@@ -61,14 +61,6 @@ draw() {
     context.fillStyle = "blue"
     context.fillRect(this.position.x, this.position.y, this.width, this.height)
 }
-scrollRight(num){
-this.position.x +=num
-
-}
-scrollLeft(num){
-    this.position.x -=num
-    
-    }
 }
 
 
@@ -76,13 +68,13 @@ scrollLeft(num){
 //initiates our lubley objects
 const player = new Player();
 const platforms = [new Platform(
-   { x:0, y:300, w:600, h:100}
+   { x:0, y:300, w:400, h:100}
 ), 
 new Platform(
     { x:600, y:400, w:400, h:100}
 ),
 new Platform(
-    { x:500, y:200, w:400, h:100}
+    { x:200, y:200, w:400, h:100}
 ),
 new Platform(
     { x:0, y: 200, w: 75, h:600}
@@ -121,14 +113,14 @@ function animate(){
     } else{
         player.velocity.x=0
 
-        if(keys.right.pressed && player.position.x ){
+        if(keys.right.pressed){
             platforms.forEach(platform => {
-            platform.scrollLeft(5)
+            platform.position.x -=5
             })
         } else if (keys.left.pressed){
             platforms.forEach(platform => {
-                
-                })
+                platform.position.x +=5
+            })
             
         }
     }
@@ -150,12 +142,12 @@ function animate(){
     // collision platform left side
     if(onTopOf==false && player.position.x+player.width == platform.position.x && keys.right.pressed && player.position.y <= platform.position.y + platform.height && player.position.y +player.height > platform.position.y){
         player.velocity.x= 0
-        platform.scrollLeft(0)
+        platform.position.x =platform.position.x
     } 
     // collision platform right side
     else if(onTopOf==false && player.position.x == platform.position.x + platform.width && keys.left.pressed && player.position.y <= platform.position.y + platform.height && player.position.y +player.height > platform.position.y){
         player.velocity.x= 0
-        keys.left.pressed = false
+        platform.position.x =platform.position.x
     } 
 
 }) 
