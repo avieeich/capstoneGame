@@ -71,10 +71,64 @@ scrollLeft(num){
     }
 }
 
+class Enemy{
+    constructor({x,y}){
+        this.position ={
+            x, 
+            y
+        }
+    
+        
+        this.width = 30
+        this.height = 50
+    }
+    
+    draw() {
+        context.fillStyle = "green"
+        context.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+    scrollRight(num){
+    this.position.x +=num
+    
+    }
+    scrollLeft(num){
+        this.position.x -=num
+        
+        }
+        shoot(projectiles){
+            projectiles.push(new Projectile({}))
+
+        }
+    }
+
+
+    class Projectile{
+        constructor({position, velocity}){
+            this.position = position
+            this.velocity = velocity
+            this.width= 10
+            this.height=10
+        }
+        draw() {
+            context.fillStyle = "gold"
+            context.fillRect(this.position.x, this.position.y, this.width, this.height)
+        }
+        update(){
+            this.draw()
+            this.position.x += this.velocity.x
+            this.position.y += this.velocity.y
+        }
+        
+        
+        }
+        
+        
+
 
 
 //initiates our lubley objects
 const player = new Player();
+
 const platforms = [new Platform(
    { x:0, y:300, w:600, h:100}
 ), 
@@ -88,6 +142,16 @@ new Platform(
     { x:0, y: 200, w: 75, h:600}
 )
 ];
+const enemies = [new Enemy(
+    {x:400, y: 250}
+)]
+const projectiles = [new Projectile({
+    position: {
+        x: 400, y:275,
+     },
+     velocity: {x:0, y:0 }
+    }
+)]
 
 
 
@@ -111,6 +175,12 @@ function animate(){
     platforms.forEach(platform => {
         platform.draw()
     })
+    enemies.forEach(enemy =>{
+        enemy.draw()
+    })
+    projectiles.forEach(projectile =>{
+        projectile.update()
+    })
 
     if (keys.right.pressed && player.position.x <400){
         scrollOffset +=5
@@ -125,9 +195,15 @@ function animate(){
             platforms.forEach(platform => {
             platform.scrollLeft(5)
             })
+            enemies.forEach(enemy => {
+                enemy.scrollLeft(5);
+            })
         } else if (keys.left.pressed){
             platforms.forEach(platform => {
-                
+            platform.scrollRight(5)
+                })
+                enemies.forEach(enemy => {
+                    enemy.scrollRight(5);
                 })
             
         }
@@ -145,7 +221,6 @@ function animate(){
 
     if(onTopOf==true){
         player.velocity.y=0
-        console.log("on")
     }
     // collision platform left side
     if(onTopOf==false && player.position.x+player.width == platform.position.x && keys.right.pressed && player.position.y <= platform.position.y + platform.height && player.position.y +player.height > platform.position.y){
@@ -159,7 +234,9 @@ function animate(){
     } 
 
 }) 
+
 }
+
 
 // calls animation function
 animate()
