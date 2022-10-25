@@ -70,65 +70,119 @@ scrollLeft(num){
     
     }
 }
-
-class Enemy{
-    constructor({x,y}){
-        this.position ={
-            x, 
-            y
-        }
-    
-        
-        this.width = 30
-        this.height = 50
+class enemyProjectile{
+    constructor({position, velocity}){
+        this.position = position
+        this.velocity = velocity
+        this.width= 10
+        this.height=10
+    }
+    draw() {
+        context.fillStyle = "gold"
+        context.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+    update(){
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
     }
     
+    
+    }
+    
+
+class Enemy {
+    constructor({position}) {
+        this.velocity = {
+            x: 0,
+            y: 0
+        }
+        this.width= 30
+        this.height= 50
+        this.position = {
+            x: position.x, 
+            y: position.y
+        }
+    }
     draw() {
         context.fillStyle = "green"
         context.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
+    update(){
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+    }
     scrollRight(num){
-    this.position.x +=num
+        this.position.x +=num
+        
+        }
+        scrollLeft(num){
+            this.position.x -=num
+            
+            }
+         shoot(enemyProjectiles){
+                enemyProjectiles.push(new enemyProjectile({
+                    position: {
+                        x: this.position.x + this.width / 2,
+                        y: this.position.y + this.height
+                    },
+                    velocity: {
+                        x: -5,
+                        y: 0
+                    }
+                }))
     
+        }
+    
+}
+
+class Swarm{
+    constructor() {
+        this.position = {
+            x: 0, 
+            y: 0
+        }
+        this.velocity = {
+            x: 0, 
+            y: 0
+        }
+
+        this.enemies =[]
+
+        for (let x = 0; x < 2; x++){
+            for (let y = 0; y< 2; y++){
+                this.enemies.push(new Enemy({position: { 
+                    x: x * Math.floor(Math.random() * 400 +50),
+                    y: y * Math.floor(Math.random() * 300 +60)
+                }}))
+            }
+        }
+        
+}
+update(){
+    this.position.x += this.velocity.x
+    this.position.y += this.velocity.y
+
+    if (this.position.y >= canvas.height){
+        this.velocity.y = -this.velocity
     }
-    scrollLeft(num){
-        this.position.x -=num
+}
+}
+    
+   
         
-        }
-        shoot(projectiles){
-            projectiles.push(new Projectile({}))
-
-        }
-    }
 
 
-    class Projectile{
-        constructor({position, velocity}){
-            this.position = position
-            this.velocity = velocity
-            this.width= 10
-            this.height=10
-        }
-        draw() {
-            context.fillStyle = "gold"
-            context.fillRect(this.position.x, this.position.y, this.width, this.height)
-        }
-        update(){
-            this.draw()
-            this.position.x += this.velocity.x
-            this.position.y += this.velocity.y
-        }
-        
-        
-        }
-        
+    
         
 
 
 
 //initiates our lubley objects
 const player = new Player();
-
+const swarms = [new Swarm()]
+const enemyProjectiles = []
 const platforms = [new Platform(
    { x:0, y:300, w:600, h:100}
 ), 
@@ -142,16 +196,6 @@ new Platform(
     { x:0, y: 200, w: 75, h:600}
 )
 ];
-const enemies = [new Enemy(
-    {x:400, y: 250}
-)]
-const projectiles = [new Projectile({
-    position: {
-        x: 400, y:275,
-     },
-     velocity: {x:0, y:0 }
-    }
-)]
 
 
 
@@ -167,20 +211,39 @@ const keys = {
 
 let scrollOffset = 0
 let onTopOf = false
+let frames = 0
 
+
+// ----------------------ANIMATE------------------------//
 function animate(){
     requestAnimationFrame(animate)
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
+    enemyProjectiles.forEach(enemyProjectile => {
+        enemyProjectile.update()
+    })
+    
+
+    swarms.forEach(swarm =>
+        swarm.enemies.forEach( enemy => {
+            enemy.update({velocity: swarm.velocity})
+        })
+        )
+
+        swarms.forEach ((swarm) => {
+            swarm.update()
+            
+        if ( frames % 20 ===0 && swarm.enemies.length >0){
+            swarm.enemies[Math.floor(Math.random() * swarm.enemies.length)].shoot(enemyProjectiles)
+        }
+        })
+   
+
+
     platforms.forEach(platform => {
         platform.draw()
     })
-    enemies.forEach(enemy =>{
-        enemy.draw()
-    })
-    projectiles.forEach(projectile =>{
-        projectile.update()
-    })
+    
 
     if (keys.right.pressed && player.position.x <400){
         scrollOffset +=5
@@ -195,15 +258,9 @@ function animate(){
             platforms.forEach(platform => {
             platform.scrollLeft(5)
             })
-            enemies.forEach(enemy => {
-                enemy.scrollLeft(5);
-            })
         } else if (keys.left.pressed){
             platforms.forEach(platform => {
             platform.scrollRight(5)
-                })
-                enemies.forEach(enemy => {
-                    enemy.scrollRight(5);
                 })
             
         }
@@ -235,7 +292,17 @@ function animate(){
 
 }) 
 
+// spawn enemies
+if ( frames> 0 && frames%1000 === 0){
+    swarms.push(new Swarm())
 }
+
+//  spawn projectiles
+frames++
+
+}
+
+
 
 
 // calls animation function

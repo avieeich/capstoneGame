@@ -95,14 +95,23 @@ class Enemy{
         this.position.x -=num
         
         }
-        shoot(projectiles){
-            projectiles.push(new Projectile({}))
+        shoot(enemyProjectiles){
+            enemyProjectiles.push(new enemyProjectile({
+                position: {
+                    x: this.position.x + this.width / 2,
+                    y: this.position.y + this.height/2
+                },
+                velocity: {
+                    x: 5,
+                    y: 0
+                }
+            }))
 
         }
     }
 
 
-    class Projectile{
+    class enemyProjectile{
         constructor({position, velocity}){
             this.position = position
             this.velocity = velocity
@@ -145,14 +154,7 @@ new Platform(
 const enemies = [new Enemy(
     {x:400, y: 250}
 )]
-const projectiles = [new Projectile({
-    position: {
-        x: 400, y:275,
-     },
-     velocity: {x:0, y:0 }
-    }
-)]
-
+const enemyProjectiles= []
 
 
 const keys = {
@@ -172,6 +174,14 @@ function animate(){
     requestAnimationFrame(animate)
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
+    enemyProjectiles.forEach(enemyProjectile => {
+        enemyProjectile.update()
+    })
+
+    enemies.forEach(enemy){
+
+    }
+
     platforms.forEach(platform => {
         platform.draw()
     })
@@ -236,6 +246,8 @@ function animate(){
 }) 
 
 }
+
+
 
 
 // calls animation function
