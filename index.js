@@ -24,7 +24,10 @@ class Player {
         this.width = 30
         this.height = 30
 
+        this.health = 100
+
     }
+
     // this creates our character. Who is a red square right now. 
     draw(){
         context.fillStyle = 'red';
@@ -38,12 +41,11 @@ update(){
     this.draw()
 
     if (this.position.y +this.height + this.velocity.y <= canvas.height){
-    this.velocity.y += gravity;} else { 
-        console.log("you lose");
-    }
+    this.velocity.y += gravity;} 
 }
 
 }
+
 //  platform class
 class Platform{
 constructor({x,y,w,h}){
@@ -113,19 +115,12 @@ class Enemy {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
     }
-    scrollRight(num){
-        this.position.x +=num
-        
-        }
-        scrollLeft(num){
-            this.position.x -=num
-            
-            }
+  
          shoot(enemyProjectiles){
                 enemyProjectiles.push(new enemyProjectile({
                     position: {
-                        x: this.position.x + this.width / 2,
-                        y: this.position.y + this.height
+                        x: this.position.x ,
+                        y: this.position.y + this.height /2
                     },
                     velocity: {
                         x: -5,
@@ -134,6 +129,14 @@ class Enemy {
                 }))
     
         }
+        scrollRight(num){
+            this.position.x +=num
+            
+            }
+            scrollLeft(num){
+                this.position.x -=num
+                
+                }
     
 }
 
@@ -153,8 +156,8 @@ class Swarm{
         for (let x = 0; x < 2; x++){
             for (let y = 0; y< 2; y++){
                 this.enemies.push(new Enemy({position: { 
-                    x: x * Math.floor(Math.random() * 400 +50),
-                    y: y * Math.floor(Math.random() * 300 +60)
+                    x: 500 + x * Math.floor(Math.random() * 1000 +40),
+                    y:100 + y * Math.floor(Math.random() * 200 +60)
                 }}))
             }
         }
@@ -168,6 +171,7 @@ update(){
         this.velocity.y = -this.velocity
     }
 }
+
 }
     
    
@@ -180,10 +184,10 @@ update(){
 
 
 //initiates our lubley objects
-const player = new Player();
-const swarms = [new Swarm()]
-const enemyProjectiles = []
-const platforms = [new Platform(
+let player = new Player();
+let swarms = [new Swarm()]
+let enemyProjectiles = []
+let platforms = [new Platform(
    { x:0, y:300, w:600, h:100}
 ), 
 new Platform(
@@ -196,9 +200,6 @@ new Platform(
     { x:0, y: 200, w: 75, h:600}
 )
 ];
-
-
-
 const keys = {
     right: {
         pressed: false
@@ -207,11 +208,41 @@ const keys = {
         pressed: false
     }
 }
-// player.draw();
 
 let scrollOffset = 0
 let onTopOf = false
 let frames = 0
+
+
+function init(){
+
+
+ player = new Player();
+ player.health=100
+ swarms = [new Swarm()]
+ enemyProjectiles = []
+ platforms = [new Platform(
+   { x:0, y:300, w:600, h:100}
+), 
+new Platform(
+    { x:600, y:400, w:400, h:100}
+),
+new Platform(
+    { x:500, y:200, w:400, h:100}
+),
+new Platform(
+    { x:0, y: 200, w: 75, h:600}
+)
+];
+ scrollOffset = 0
+ onTopOf = false
+ frames = 0
+
+}
+
+
+// player.draw();
+
 
 
 // ----------------------ANIMATE------------------------//
@@ -220,7 +251,11 @@ function animate(){
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
     enemyProjectiles.forEach(enemyProjectile => {
+        if(enemyProjectile.position.x >= player.position.x && enemyProjectile.position.x <= player.position.x+player.width && enemyProjectile.position.y+enemyProjectile.height >= player.position.y && enemyProjectile.position.y <= player.position.y+player.height){
+            player.health -=1
+        } else{
         enemyProjectile.update()
+        }
     })
     
 
@@ -246,10 +281,10 @@ function animate(){
     
 
     if (keys.right.pressed && player.position.x <400){
-        scrollOffset +=5
+        
         player.velocity.x = 5
     } else if (keys.left.pressed && player.position.x > 100){
-        scrollOffset -=5
+        
         player.velocity.x = -5;
     } else{
         player.velocity.x=0
@@ -258,17 +293,26 @@ function animate(){
             platforms.forEach(platform => {
             platform.scrollLeft(5)
             })
+            scrollOffset +=5
         } else if (keys.left.pressed){
             platforms.forEach(platform => {
             platform.scrollRight(5)
                 })
+                scrollOffset -=5
             
         }
     }
-
-    if(scrollOffset > 200){
+// win
+    if(scrollOffset > 1000){
         console.log("you win!");
     }
+
+// lose
+if(player.position.y > canvas.height) {
+   init()
+
+}
+
 
     platforms.forEach(platform => {
     
@@ -292,14 +336,22 @@ function animate(){
 
 }) 
 
+
+
+
 // spawn enemies
-if ( frames> 0 && frames%1000 === 0){
+if ( frames> 0 && scrollOffset === 1000){
     swarms.push(new Swarm())
 }
 
-//  spawn projectiles
 frames++
 
+
+// console.log(scrollOffset)
+if (player.health<=0){
+    init()
+}
+// console.log(player.health)
 }
 
 
