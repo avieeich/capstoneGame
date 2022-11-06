@@ -299,7 +299,7 @@ function animate(){
 
         enemies.forEach (enemy => {
             enemy.draw()
-        if ( frames % 100 ===0 && enemy.position.x<canvas.width){
+        if ( frames % 100 ===0 || frames%100 === 10 || frames%100 === 20 && enemy.position.x<canvas.width){
             enemy.shoot(enemyProjectiles)
         } 
         })
@@ -374,22 +374,27 @@ if(player.position.y > canvas.height) {
     }
     // collision platform left side
     if(keys.right.pressed && player.position.x+player.width >= platform.position.x && player.position.x+player.width <platform.position.x+platform.width && player.position.y < platform.position.y + platform.height && player.position.y +player.height >= platform.position.y){
-        player.velocity.x= 0
-        fcolliding=true
-        console.log("front")
+        player.position.x-= 5
 
     } 
     // collision platform right side
-    else if(keys.left.pressed && player.position.x+player.width > platform.position.x && player.position.x+player.width <= platform.position.x+platform.width && player.position.y < platform.position.y + platform.height && player.position.y +player.height >= platform.position.y){
-        player.velocity.x= 0
-        bcolliding = true
-        console.log("back")
-    } else {
-        fcolliding=false
-        bcolliding=false
-    }
+    else if(keys.left.pressed && player.position.x <= platform.position.x+platform.width && player.position.x+player.width >= platform.position.x && player.position.y < platform.position.y + platform.height && player.position.y +player.height >= platform.position.y){
+        player.position.x+= 5
+    } 
 
 }) 
+
+// Collision with enemies 
+enemies.forEach(enemy =>{
+    if(keys.right.pressed && player.position.x+player.width >= enemy.position.x && player.position.x+player.width <enemy.position.x+enemy.width && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
+        player.position.x-= 5
+
+    } 
+
+    else if(keys.left.pressed && player.position.x <= enemy.position.x+enemy.width && player.position.x+player.width >= enemy.position.x && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
+        player.position.x+= 5
+    } 
+})
 
 
 // spawn enemies
