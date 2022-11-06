@@ -9,22 +9,28 @@ canvas.height = window.innerHeight;
 //ads on to the velocity pushing *see the update function
 const gravity = 1;
 
-// creates Player object, this is the character we want to control
+// creates Player object, this is the character we control
 class Player {
     constructor(){
         this.position = {
             x: 100,
             y: 100
         }
-        //player is now endangered by the laws of physics (It's part of gravity)
+        //player is now endangered by the laws of physics 
         this.velocity = {
             x: 0,
             y: 0
         }
         this.width = 30
         this.height = 30
+        this.isAttacking 
 
-        this.health = 100
+        this.health = 50
+        this.attackbox = {
+            position: this.position,
+            width: 70, 
+            height: 20
+        }
 
     }
 
@@ -32,6 +38,10 @@ class Player {
     draw(){
         context.fillStyle = 'red';
         context.fillRect(this.position.x, this.position.y, this.width, this.height)
+
+        // attack box
+        context.fillStyle='purple';
+        context.fillRect(this.attackbox.position.x, this.attackbox.position.y, this.attackbox.width, this.attackbox.height)
         
     }
     //puts velocity into position.
@@ -41,7 +51,15 @@ update(){
     this.draw()
 
     if (this.position.y +this.height + this.velocity.y <= canvas.height){
-    this.velocity.y += gravity;} 
+    this.velocity.y += gravity;}     
+    
+    
+}
+attack(){
+    this.isAttacking = true
+    setTimeout(()=>{
+        this.isAttacking=false
+    }, 100)
 }
 
 }
@@ -54,7 +72,7 @@ constructor({x,y,w,h}){
         y
     }
 
-    
+    this.velocity = 0
     this.width = w
     this.height = h
 }
@@ -63,15 +81,16 @@ draw() {
     context.fillStyle = "blue"
     context.fillRect(this.position.x, this.position.y, this.width, this.height)
 }
-scrollRight(num){
-this.position.x +=num
+scrollRight(){
+this.position.x +=this.velocity
 
 }
-scrollLeft(num){
-    this.position.x -=num
+scrollLeft(){
+    this.position.x -= this.velocity
     
     }
 }
+
 class enemyProjectile{
     constructor({position, velocity}){
         this.position = position
@@ -94,7 +113,7 @@ class enemyProjectile{
     
 
 class Enemy {
-    constructor({position}) {
+    constructor({x,y}) {
         this.velocity = {
             x: 0,
             y: 0
@@ -102,8 +121,8 @@ class Enemy {
         this.width= 30
         this.height= 50
         this.position = {
-            x: position.x, 
-            y: position.y
+            x: x, 
+            y: y
         }
     }
     draw() {
@@ -120,7 +139,7 @@ class Enemy {
                 enemyProjectiles.push(new enemyProjectile({
                     position: {
                         x: this.position.x ,
-                        y: this.position.y + this.height /2
+                        y: this.position.y + this.height/2
                     },
                     velocity: {
                         x: -5,
@@ -185,7 +204,10 @@ update(){
 
 //initiates our lubley objects
 let player = new Player();
-let swarms = [new Swarm()]
+let enemies = [new Enemy(
+    {x:500, y: 100}
+)
+]
 let enemyProjectiles = []
 let platforms = [new Platform(
    { x:0, y:300, w:600, h:100}
@@ -212,14 +234,18 @@ const keys = {
 let scrollOffset = 0
 let onTopOf = false
 let frames = 0
+let fcolliding= false
+let bcolliding= false
 
 
 function init(){
 
 
  player = new Player();
- player.health=100
- swarms = [new Swarm()]
+ player.health=50
+ enemies = [new Enemy(
+    {x:500, y: 100}
+)]
  enemyProjectiles = []
  platforms = [new Platform(
    { x:0, y:300, w:600, h:100}
@@ -237,6 +263,8 @@ new Platform(
  scrollOffset = 0
  onTopOf = false
  frames = 0
+ fcolliding=false
+ bcolliding=false
 
 }
 
@@ -250,6 +278,9 @@ function animate(){
     requestAnimationFrame(animate)
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
+
+ 
+    // hitting player
     enemyProjectiles.forEach(enemyProjectile => {
         if(enemyProjectile.position.x >= player.position.x && enemyProjectile.position.x <= player.position.x+player.width && enemyProjectile.position.y+enemyProjectile.height >= player.position.y && enemyProjectile.position.y <= player.position.y+player.height){
             player.health -=1
@@ -257,20 +288,20 @@ function animate(){
         enemyProjectile.update()
         }
     })
+
+    // attack enemy
+    enemies.forEach (enemy=> {
+        if(player.attackbox.position.x + player.attackbox.width >= enemy.position.x && player.attackbox.position.x+player.attackbox.width-player.width <= enemy.position.x+enemy.width && player.attackbox.position.y+player.attackbox.height>= enemy.position.y && player.attackbox.position.y< enemy.position.y+enemy.height){
+            console.log('hit!')
+        }
+    })
     
 
-    swarms.forEach(swarm =>
-        swarm.enemies.forEach( enemy => {
-            enemy.update({velocity: swarm.velocity})
-        })
-        )
-
-        swarms.forEach ((swarm) => {
-            swarm.update()
-            
-        if ( frames % 20 ===0 && swarm.enemies.length >0){
-            swarm.enemies[Math.floor(Math.random() * swarm.enemies.length)].shoot(enemyProjectiles)
-        }
+        enemies.forEach (enemy => {
+            enemy.draw()
+        if ( frames % 100 ===0 && enemy.position.x<canvas.width){
+            enemy.shoot(enemyProjectiles)
+        } 
         })
    
 
@@ -278,7 +309,15 @@ function animate(){
     platforms.forEach(platform => {
         platform.draw()
     })
-    
+
+    if (fcolliding===true){
+        platforms.forEach(platform => 
+            platform.velocity=0) 
+    } else if (fcolliding===false){
+        
+        platforms.forEach(platform => 
+            platform.velocity=5) 
+    }
 
     if (keys.right.pressed && player.position.x <400){
         
@@ -289,15 +328,25 @@ function animate(){
     } else{
         player.velocity.x=0
 
-        if(keys.right.pressed && player.position.x ){
+        if(keys.right.pressed){
             platforms.forEach(platform => {
-            platform.scrollLeft(5)
+            platform.scrollLeft()
             })
+            enemies.forEach(enemy => {
+                enemy.scrollLeft(5)
+                })
+            
+                enemyProjectiles.forEach(enemyProjectile => {
+                    enemyProjectile.position.x -= 5
+                    })
             scrollOffset +=5
         } else if (keys.left.pressed){
             platforms.forEach(platform => {
-            platform.scrollRight(5)
+            platform.scrollRight()
                 })
+             enemies.forEach(enemy => {
+                enemy.scrollRight(5)
+                        })
                 scrollOffset -=5
             
         }
@@ -324,25 +373,26 @@ if(player.position.y > canvas.height) {
         player.velocity.y=0
     }
     // collision platform left side
-    if(onTopOf==false && player.position.x+player.width == platform.position.x && keys.right.pressed && player.position.y <= platform.position.y + platform.height && player.position.y +player.height > platform.position.y){
+    if(keys.right.pressed && player.position.x+player.width >= platform.position.x && player.position.x+player.width <platform.position.x+platform.width && player.position.y < platform.position.y + platform.height && player.position.y +player.height >= platform.position.y){
         player.velocity.x= 0
-        platform.scrollLeft(0)
+        fcolliding=true
+        console.log("front")
+
     } 
     // collision platform right side
-    else if(onTopOf==false && player.position.x == platform.position.x + platform.width && keys.left.pressed && player.position.y <= platform.position.y + platform.height && player.position.y +player.height > platform.position.y){
+    else if(keys.left.pressed && player.position.x+player.width > platform.position.x && player.position.x+player.width <= platform.position.x+platform.width && player.position.y < platform.position.y + platform.height && player.position.y +player.height >= platform.position.y){
         player.velocity.x= 0
-        keys.left.pressed = false
-    } 
+        bcolliding = true
+        console.log("back")
+    } else {
+        fcolliding=false
+        bcolliding=false
+    }
 
 }) 
 
 
-
-
 // spawn enemies
-if ( frames> 0 && scrollOffset === 1000){
-    swarms.push(new Swarm())
-}
 
 frames++
 
@@ -390,6 +440,11 @@ addEventListener("keydown", ({keyCode}) => {
             console.log(player.velocity.y)
             break
             
+            case ' ':
+                player.attack()
+                console.log('hya')
+                break
+
     }
 })
 
@@ -408,6 +463,7 @@ addEventListener("keyup", ({keyCode}) => {
             console.log ('right')
             keys.right.pressed=false
             break
+            
             
             // case 87:
             // console.log ('up')
