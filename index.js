@@ -23,7 +23,7 @@ class Player {
         }
         this.width = 30
         this.height = 30
-        this.isAttacking 
+        this.isAttacking = false
 
         this.health = 50
         this.attackbox = {
@@ -40,8 +40,10 @@ class Player {
         context.fillRect(this.position.x, this.position.y, this.width, this.height)
 
         // attack box
+        if (this.isAttacking===true){
         context.fillStyle='purple';
         context.fillRect(this.attackbox.position.x, this.attackbox.position.y, this.attackbox.width, this.attackbox.height)
+        }
         
     }
     //puts velocity into position.
@@ -60,6 +62,7 @@ attack(){
     setTimeout(()=>{
         this.isAttacking=false
     }, 100)
+    console.log(this.isAttacking);
 }
 
 }
@@ -99,7 +102,7 @@ class enemyProjectile{
         this.height=10
     }
     draw() {
-        context.fillStyle = "gold"
+        context.fillStyle = "black"
         context.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
     update(){
@@ -159,6 +162,7 @@ class Enemy {
     
 }
 
+// kinda obsolete... but I want it here in case. 
 class Swarm{
     constructor() {
         this.position = {
@@ -192,14 +196,31 @@ update(){
 }
 
 }
-    
-   
+
+class HealthBar{
+    constructor(){
+        this.position = {
+            x: 50,
+            y: 50
+        }
+        this.width = player.health*3
+        this.height = 20
+
+    }
+    draw(){
+        context.fillStyle = 'pink';
+        context.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+    update(){
+        this.width = player.health*3
+        this.draw()
         
+    }
+}    
 
+class healthOrb{
 
-    
-        
-
+}
 
 
 //initiates our lubley objects
@@ -208,6 +229,7 @@ let enemies = [new Enemy(
     {x:500, y: 100}
 )
 ]
+let healthBar = new HealthBar();
 let enemyProjectiles = []
 let platforms = [new Platform(
    { x:0, y:300, w:600, h:100}
@@ -243,6 +265,8 @@ function init(){
 
  player = new Player();
  player.health=50
+
+let healthBar = new HealthBar();
  enemies = [new Enemy(
     {x:500, y: 100}
 )]
@@ -278,21 +302,33 @@ function animate(){
     requestAnimationFrame(animate)
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
+    healthBar.update()
 
  
     // hitting player
-    enemyProjectiles.forEach(enemyProjectile => {
+    enemyProjectiles.forEach((enemyProjectile, i) => {
         if(enemyProjectile.position.x >= player.position.x && enemyProjectile.position.x <= player.position.x+player.width && enemyProjectile.position.y+enemyProjectile.height >= player.position.y && enemyProjectile.position.y <= player.position.y+player.height){
-            player.health -=1
+            player.health -=5
+            setTimeout(()=> {
+                enemyProjectiles.splice(i, 1)
+            })
         } else{
         enemyProjectile.update()
+        }
+        if(enemyProjectile.position.x<0){
+            setTimeout(()=> {
+                enemyProjectiles.splice(i, 1)
+            })
         }
     })
 
     // attack enemy
-    enemies.forEach (enemy=> {
-        if(player.attackbox.position.x + player.attackbox.width >= enemy.position.x && player.attackbox.position.x+player.attackbox.width-player.width <= enemy.position.x+enemy.width && player.attackbox.position.y+player.attackbox.height>= enemy.position.y && player.attackbox.position.y< enemy.position.y+enemy.height){
+    enemies.forEach ((enemy, i)=> {
+        if(player.attackbox.position.x + player.attackbox.width >= enemy.position.x && player.attackbox.position.x+player.attackbox.width-player.width <= enemy.position.x+enemy.width && player.attackbox.position.y+player.attackbox.height>= enemy.position.y && player.attackbox.position.y< enemy.position.y+enemy.height && player.isAttacking===true){
             console.log('hit!')
+            setTimeout(()=> {
+                enemies.splice(i, 1)
+            })
         }
     })
     
@@ -387,12 +423,13 @@ if(player.position.y > canvas.height) {
 // Collision with enemies 
 enemies.forEach(enemy =>{
     if(keys.right.pressed && player.position.x+player.width >= enemy.position.x && player.position.x+player.width <enemy.position.x+enemy.width && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
-        player.position.x-= 5
-
+        player.position.x-= 10
+        player.health-=1
     } 
 
     else if(keys.left.pressed && player.position.x <= enemy.position.x+enemy.width && player.position.x+player.width >= enemy.position.x && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
-        player.position.x+= 5
+        player.position.x+= 10
+        player.health-=1
     } 
 })
 
@@ -406,7 +443,9 @@ frames++
 if (player.health<=0){
     init()
 }
-// console.log(player.health)
+
+
+// end animate loop
 }
 
 
@@ -445,7 +484,7 @@ addEventListener("keydown", ({keyCode}) => {
             console.log(player.velocity.y)
             break
             
-            case ' ':
+            case 32:
                 player.attack()
                 console.log('hya')
                 break
