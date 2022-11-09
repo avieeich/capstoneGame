@@ -26,6 +26,7 @@ class Player {
         this.isAttacking = false
 
         this.health = 50
+        this.facingLeft = false
         this.attackbox = {
             position: this.position,
             width: 70, 
@@ -218,10 +219,6 @@ class HealthBar{
     }
 }    
 
-class healthOrb{
-
-}
-
 
 //initiates our lubley objects
 let player = new Player();
@@ -323,6 +320,14 @@ function animate(){
     })
 
     // attack enemy
+
+   if (player.facingLeft===true){
+    player.attackbox.width = -40
+   } 
+   else if (keys.right.pressed) {
+    player.attackbox.width = 70
+   }
+
     enemies.forEach ((enemy, i)=> {
         if(player.attackbox.position.x + player.attackbox.width >= enemy.position.x && player.attackbox.position.x+player.attackbox.width-player.width <= enemy.position.x+enemy.width && player.attackbox.position.y+player.attackbox.height>= enemy.position.y && player.attackbox.position.y< enemy.position.y+enemy.height && player.isAttacking===true){
             console.log('hit!')
@@ -330,6 +335,7 @@ function animate(){
                 enemies.splice(i, 1)
             })
         }
+      
     })
     
 
@@ -355,11 +361,18 @@ function animate(){
             platform.velocity=5) 
     }
 
+
+    if (keys.left.pressed){
+        player.facingLeft = true
+    } else {
+        player.facingLeft= false
+    }
+
     if (keys.right.pressed && player.position.x <400){
         
         player.velocity.x = 5
+        player.facingLeft= false
     } else if (keys.left.pressed && player.position.x > 100){
-        
         player.velocity.x = -5;
     } else{
         player.velocity.x=0
@@ -438,6 +451,9 @@ enemies.forEach(enemy =>{
 
 frames++
 
+if ( player.facingLeft===true){
+    console.log("facing left")
+}
 
 // console.log(scrollOffset)
 if (player.health<=0){
