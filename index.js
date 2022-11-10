@@ -128,6 +128,7 @@ class Enemy {
             x: x, 
             y: y
         }
+        this.projectileVelocity
     }
     draw() {
         context.fillStyle = "green"
@@ -146,7 +147,7 @@ class Enemy {
                         y: this.position.y + this.height/2
                     },
                     velocity: {
-                        x: -5,
+                        x: this.projectileVelocity,
                         y: 0
                     }
                 }))
@@ -340,6 +341,11 @@ function animate(){
     
 
         enemies.forEach (enemy => {
+            if (player.position.x < enemy.position.x) {
+                enemy.projectileVelocity= -5
+            } else if (player.position.x >enemy.position.x){
+                enemy.projectileVelocity = 5
+            }
             enemy.draw()
         if ( frames % 100 ===0 || frames%100 === 10 || frames%100 === 20 && enemy.position.x<canvas.width){
             enemy.shoot(enemyProjectiles)
@@ -385,9 +391,7 @@ function animate(){
                 enemy.scrollLeft(5)
                 })
             
-                enemyProjectiles.forEach(enemyProjectile => {
-                    enemyProjectile.position.x -= 5
-                    })
+               
             scrollOffset +=5
         } else if (keys.left.pressed){
             platforms.forEach(platform => {
@@ -400,7 +404,10 @@ function animate(){
             
         }
     }
-// win
+
+
+
+   
     if(scrollOffset > 1000){
         console.log("you win!");
     }
