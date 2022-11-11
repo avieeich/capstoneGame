@@ -313,7 +313,7 @@ function animate(){
         } else{
         enemyProjectile.update()
         }
-        if(enemyProjectile.position.x<0){
+        if(enemyProjectile.position.x<0 || enemyProjectile.position.x> canvas.width-100){
             setTimeout(()=> {
                 enemyProjectiles.splice(i, 1)
             })
@@ -378,6 +378,7 @@ function animate(){
         
         player.velocity.x = 5
         player.facingLeft= false
+
     } else if (keys.left.pressed && player.position.x > 100){
         player.velocity.x = -5;
     } else{
@@ -404,6 +405,23 @@ function animate(){
             
         }
     }
+
+enemies.forEach(enemy =>{
+
+   
+        
+        enemyProjectiles.forEach(enemyProjectile =>{
+            if( keys.right.pressed && player.position.x >= 400 && enemyProjectile.position.x< enemy.position.x+enemy.width){
+            enemyProjectile.position.x-=5
+            } else if(keys.left.pressed && player.position.x<=100 && enemyProjectile.position.x<enemy.position.x+enemy.width){
+                enemyProjectile.position.x+=5;
+            } else if( keys.right.pressed && player.position.x >=400 && enemyProjectile.position.x >enemy.position.x+enemy.width){
+                enemyProjectile.position.x -= 5
+            } else if(keys.left.pressed && player.position.x<=100 && enemyProjectile.position.x>enemy.position.x+enemy.width){
+                enemyProjectile.position.x+=5;
+            } 
+        })
+})
 
 
 
