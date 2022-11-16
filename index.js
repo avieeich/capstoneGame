@@ -247,15 +247,31 @@ class HealthBar{
 
 //initiates our lubley objects
 let player = new Player();
+player.health=100
 let enemies = [new Enemy(
-    {x:500, y: 100}
-)
+    {x:835, y: 235}),
+    new Enemy(
+        {x:2205, y: 345}),
+    new Enemy(
+        {x:2834, y: 155}),
+    new Enemy(
+        {x:3158, y: 55}),
+    new Enemy(
+        {x:3700, y: 345}),
+    new Enemy(
+        {x:4530, y: 355}),
+    new Enemy(
+        {x:5665, y: 255}),
+    new Enemy(
+        {x:6100, y: 155}),
+    new Enemy(
+        {x:7002, y: 285}),
+    new Enemy(
+        {x:7537, y: 385})
 ]
 let healthBar = new HealthBar();
 let enemyProjectiles = []
-let sweepers = [new Enemy(
-    {x:500, y:200}
-)]
+let sweepers = []
 let platforms = [new Platform(
    { x:0, y:400, w:600, h:325}
 ), 
@@ -346,12 +362,30 @@ function init(){
 
 
  player = new Player();
- player.health=50
+ player.health=100
 
 let healthBar = new HealthBar();
  enemies = [new Enemy(
-    {x:500, y: 100}
-)]
+    {x:835, y: 235}),
+    new Enemy(
+        {x:2205, y: 345}),
+    new Enemy(
+        {x:2834, y: 155}),
+    new Enemy(
+        {x:3158, y: 55}),
+    new Enemy(
+        {x:3700, y: 345}),
+    new Enemy(
+        {x:4530, y: 355}),
+    new Enemy(
+        {x:5665, y: 255}),
+    new Enemy(
+        {x:6100, y: 155}),
+    new Enemy(
+        {x:7002, y: 305}),
+    new Enemy(
+        {x:7537, y: 385})
+]
  enemyProjectiles = []
  sweepers = [new Enemy(
     {x:500, y:200}
@@ -474,12 +508,12 @@ function animate(){
 
         enemies.forEach (enemy => {
             if (player.position.x < enemy.position.x) {
-                enemy.projectileVelocity= -5
+                enemy.projectileVelocity= -10
             } else if (player.position.x >enemy.position.x){
-                enemy.projectileVelocity = 5
+                enemy.projectileVelocity = 10
             }
             enemy.draw()
-        if ( frames % 100 ===0 || frames%100 === 10 || frames%100 === 20 && enemy.position.x<canvas.width){
+        if ( frames % 100 ===0 || frames%100 === 10 || frames%100 === 20 && enemy.position.x<=canvas.width && enemy.position.x>= 0){
             enemy.shoot(enemyProjectiles)
         } 
         })
@@ -561,13 +595,13 @@ enemies.forEach(enemy =>{
         
         enemyProjectiles.forEach(enemyProjectile =>{
             if( keys.right.pressed && player.position.x >= 400 && enemyProjectile.position.x< enemy.position.x+enemy.width){
-            enemyProjectile.position.x-=5
+            enemyProjectile.position.x-=.5
             } else if(keys.left.pressed && player.position.x<=100 && enemyProjectile.position.x<enemy.position.x+enemy.width){
-                enemyProjectile.position.x+=5;
+                enemyProjectile.position.x+=.2;
             } else if( keys.right.pressed && player.position.x >=400 && enemyProjectile.position.x >enemy.position.x+enemy.width){
-                enemyProjectile.position.x -= 5
+                enemyProjectile.position.x -= 0
             } else if(keys.left.pressed && player.position.x<=100 && enemyProjectile.position.x>enemy.position.x+enemy.width){
-                enemyProjectile.position.x+=5;
+                enemyProjectile.position.x+=0;
             } 
         })
 })
@@ -637,7 +671,6 @@ if (player.health<=0){
 
 // end animate loop
 }
-
 
 
 

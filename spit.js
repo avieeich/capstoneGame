@@ -3,8 +3,8 @@ console.log(canvas);
 const context = canvas.getContext('2d');
 
 // you can put this in css
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 1080;
+canvas.height = 608;
 
 //ads on to the velocity pushing *see the update function
 const gravity = 1;
@@ -85,6 +85,8 @@ draw() {
     context.fillStyle = "blue"
     context.fillRect(this.position.x, this.position.y, this.width, this.height)
 }
+
+    
 scrollRight(){
 this.position.x +=this.velocity
 
@@ -140,16 +142,16 @@ class Enemy {
         this.position.y += this.velocity.y
     }
   
-         shoot(enemyProjectiles){
-                enemyProjectiles.push(new enemyProjectile({
-                    position: {
-                        x: this.position.x ,
-                        y: this.position.y + this.height/2
-                    },
-                    velocity: {
-                        x: this.projectileVelocity,
-                        y: 0
-                    }
+    shoot(enemyProjectiles){
+        enemyProjectiles.push(new enemyProjectile({
+            position: {
+                x: this.position.x ,
+                y: this.position.y + this.height/2
+            },
+            velocity: {
+                 x: this.projectileVelocity,
+                y: 0
+            }
                 }))
     
         }
@@ -164,40 +166,62 @@ class Enemy {
     
 }
 
-// kinda obsolete... but I want it here in case. 
-class Swarm{
-    constructor() {
+class Sweeper{
+    constructor({position, velocity}){
         this.position = {
-            x: 0, 
-            y: 0
+            x: 500,
+            y: 200
         }
-        this.velocity = {
-            x: 0, 
-            y: 0
-        }
-
-        this.enemies =[]
-
-        for (let x = 0; x < 2; x++){
-            for (let y = 0; y< 2; y++){
-                this.enemies.push(new Enemy({position: { 
-                    x: 500 + x * Math.floor(Math.random() * 1000 +40),
-                    y:100 + y * Math.floor(Math.random() * 200 +60)
-                }}))
-            }
-        }
-        
-}
-update(){
-    this.position.x += this.velocity.x
-    this.position.y += this.velocity.y
-
-    if (this.position.y >= canvas.height){
-        this.velocity.y = -this.velocity
+        this.velocity = velocity
+        this.width= 50
+        this.height= 20
     }
-}
+    draw() {
+        context.fillStyle = "green"
+        context.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+    update(){
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+    }
+    
+    
+    }
+// kinda obsolete... but I want it here in case. 
+// class Swarm{
+//     constructor() {
+//         this.position = {
+//             x: 0, 
+//             y: 0
+//         }
+//         this.velocity = {
+//             x: 0, 
+//             y: 0
+//         }
 
-}
+//         this.enemies =[]
+
+//         for (let x = 0; x < 2; x++){
+//             for (let y = 0; y< 2; y++){
+//                 this.enemies.push(new Enemy({position: { 
+//                     x: 500 + x * Math.floor(Math.random() * 1000 +40),
+//                     y:100 + y * Math.floor(Math.random() * 200 +60)
+//                 }}))
+//             }
+//         }
+        
+// }
+// update(){
+//     this.position.x += this.velocity.x
+//     this.position.y += this.velocity.y
+
+//     if (this.position.y >= canvas.height){
+//         this.velocity.y = -this.velocity
+//     }
+// }
+
+// }
 
 class HealthBar{
     constructor(){
@@ -229,17 +253,77 @@ let enemies = [new Enemy(
 ]
 let healthBar = new HealthBar();
 let enemyProjectiles = []
+let sweepers = [new Enemy(
+    {x:500, y:200}
+)]
 let platforms = [new Platform(
-   { x:0, y:300, w:600, h:100}
+   { x:0, y:400, w:600, h:325}
 ), 
 new Platform(
-    { x:600, y:400, w:400, h:100}
+    { x:680, y:280, w:280, h:500}
 ),
 new Platform(
-    { x:500, y:200, w:400, h:100}
+    { x:1160, y:520, w:697, h:150}
 ),
 new Platform(
-    { x:0, y: 200, w: 75, h:600}
+    { x:2010, y: 390, w: 250, h:210}
+),
+new Platform(
+    { x:2430, y: 220, w: 168, h:390}
+),
+new Platform(
+    { x:2680, y: 340, w: 600, h:265}
+),
+new Platform(
+    { x:2730, y: 100, w: 600, h:50}
+),
+new Platform(
+    { x:3400, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:3600, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:3800, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:4100, y: 300, w: 400, h:310}
+),
+new Platform(
+    { x:4500, y: 400, w: 330, h:210}
+),
+new Platform(
+    { x:5000, y: 300, w: 220, h:310}
+),
+new Platform(
+    { x:5400, y: 300, w: 100, h:50}
+),
+new Platform(
+    { x:5600, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:5800, y: 400, w: 100, h:50}
+),
+new Platform(
+    { x:6000, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:6200, y: 400, w: 100, h:50}
+),
+new Platform(
+    { x:6400, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:6600, y: 300, w: 450, h:50}
+),
+new Platform(
+    { x:7200, y: 430, w: 600, h:180}
+),
+new Platform(
+    { x:7950, y: 315, w: 300, h:290}
+),
+new Platform(
+    { x:8400, y: 145, w: 700, h:480}
 )
 ];
 const keys = {
@@ -269,17 +353,77 @@ let healthBar = new HealthBar();
     {x:500, y: 100}
 )]
  enemyProjectiles = []
+ sweepers = [new Enemy(
+    {x:500, y:200}
+)]
  platforms = [new Platform(
-   { x:0, y:300, w:600, h:100}
+    { x:0, y:400, w:600, h:325}
 ), 
 new Platform(
-    { x:600, y:400, w:400, h:100}
+    { x:680, y:280, w:280, h:500}
 ),
 new Platform(
-    { x:500, y:200, w:400, h:100}
+    { x:1160, y:520, w:697, h:150}
 ),
 new Platform(
-    { x:0, y: 200, w: 75, h:600}
+    { x:2010, y: 390, w: 250, h:210}
+),
+new Platform(
+    { x:2430, y: 220, w: 168, h:390}
+),
+new Platform(
+    { x:2680, y: 340, w: 600, h:265}
+),
+new Platform(
+    { x:2730, y: 100, w: 600, h:50}
+),
+new Platform(
+    { x:3400, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:3600, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:3800, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:4100, y: 300, w: 400, h:310}
+),
+new Platform(
+    { x:4500, y: 400, w: 330, h:210}
+),
+new Platform(
+    { x:5000, y: 300, w: 220, h:310}
+),
+new Platform(
+    { x:5400, y: 300, w: 100, h:50}
+),
+new Platform(
+    { x:5600, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:5800, y: 400, w: 100, h:50}
+),
+new Platform(
+    { x:6000, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:6200, y: 400, w: 100, h:50}
+),
+new Platform(
+    { x:6400, y: 200, w: 100, h:50}
+),
+new Platform(
+    { x:6600, y: 300, w: 450, h:50}
+),
+new Platform(
+    { x:7200, y: 430, w: 600, h:180}
+),
+new Platform(
+    { x:7950, y: 315, w: 300, h:290}
+),
+new Platform(
+    { x:8400, y: 145, w: 700, h:480}
 )
 ];
  scrollOffset = 0
@@ -301,24 +445,12 @@ function animate(){
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
     healthBar.update()
+    sweepers.forEach(sweeper =>
+        sweeper.update())
 
  
-    // hitting player
-    enemyProjectiles.forEach((enemyProjectile, i) => {
-        if(enemyProjectile.position.x >= player.position.x && enemyProjectile.position.x <= player.position.x+player.width && enemyProjectile.position.y+enemyProjectile.height >= player.position.y && enemyProjectile.position.y <= player.position.y+player.height){
-            player.health -=5
-            setTimeout(()=> {
-                enemyProjectiles.splice(i, 1)
-            })
-        } else{
-        enemyProjectile.update()
-        }
-        if(enemyProjectile.position.x<0){
-            setTimeout(()=> {
-                enemyProjectiles.splice(i, 1)
-            })
-        }
-    })
+    
+
 
     // attack enemy
 
@@ -342,15 +474,32 @@ function animate(){
 
         enemies.forEach (enemy => {
             if (player.position.x < enemy.position.x) {
-                enemy.projectileVelocity= -5
+                enemy.projectileVelocity= -10
             } else if (player.position.x >enemy.position.x){
-                enemy.projectileVelocity = 5
+                enemy.projectileVelocity = 10
             }
             enemy.draw()
         if ( frames % 100 ===0 || frames%100 === 10 || frames%100 === 20 && enemy.position.x<canvas.width){
             enemy.shoot(enemyProjectiles)
         } 
         })
+
+        // hitting player
+    enemyProjectiles.forEach((enemyProjectile, i) => {
+        if(enemyProjectile.position.x >= player.position.x && enemyProjectile.position.x <= player.position.x+player.width && enemyProjectile.position.y+enemyProjectile.height >= player.position.y && enemyProjectile.position.y <= player.position.y+player.height){
+            player.health -=5
+            setTimeout(()=> {
+                enemyProjectiles.splice(i, 1)
+            })
+        } else{
+        enemyProjectile.update()
+        }
+        if(enemyProjectile.position.x<0 || enemyProjectile.position.x> canvas.width-100){
+            setTimeout(()=> {
+                enemyProjectiles.splice(i, 1)
+            })
+        }
+    })
    
 
 
@@ -378,6 +527,7 @@ function animate(){
         
         player.velocity.x = 5
         player.facingLeft= false
+
     } else if (keys.left.pressed && player.position.x > 100){
         player.velocity.x = -5;
     } else{
@@ -404,6 +554,23 @@ function animate(){
             
         }
     }
+
+enemies.forEach(enemy =>{
+
+   
+        
+        enemyProjectiles.forEach(enemyProjectile =>{
+            if( keys.right.pressed && player.position.x >= 400 && enemyProjectile.position.x< enemy.position.x+enemy.width){
+            enemyProjectile.position.x-=5
+            } else if(keys.left.pressed && player.position.x<=100 && enemyProjectile.position.x<enemy.position.x+enemy.width){
+                enemyProjectile.position.x+=5;
+            } else if( keys.right.pressed && player.position.x >=400 && enemyProjectile.position.x >enemy.position.x+enemy.width){
+                enemyProjectile.position.x -= 5
+            } else if(keys.left.pressed && player.position.x<=100 && enemyProjectile.position.x>enemy.position.x+enemy.width){
+                enemyProjectile.position.x+=5;
+            } 
+        })
+})
 
 
 
