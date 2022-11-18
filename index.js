@@ -167,14 +167,17 @@ class Enemy {
 }
 
 class Sweeper{
-    constructor({position, velocity}){
-        this.position = {
-            x: 500,
-            y: 200
+    constructor({x,y,v}) {
+        this.velocity = {
+            x: v,
         }
-        this.velocity = velocity
         this.width= 50
         this.height= 20
+        this.position = {
+            x: x, 
+            y: y
+        }
+        this.projectileVelocity
     }
     draw() {
         context.fillStyle = "green"
@@ -183,7 +186,6 @@ class Sweeper{
     update(){
         this.draw()
         this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
     }
     
     
@@ -247,6 +249,7 @@ class HealthBar{
 
 //initiates our lubley objects
 let player = new Player();
+let sweepIndex = 0
 player.health=100
 let enemies = [new Enemy(
     {x:835, y: 235}),
@@ -269,9 +272,11 @@ let enemies = [new Enemy(
     new Enemy(
         {x:7537, y: 385})
 ]
+let sweepers = [new Sweeper(
+    {x:0, y:380, v: 2}
+)]
 let healthBar = new HealthBar();
 let enemyProjectiles = []
-let sweepers = []
 let platforms = [new Platform(
    { x:0, y:400, w:600, h:325}
 ), 
@@ -387,9 +392,7 @@ let healthBar = new HealthBar();
         {x:7537, y: 385})
 ]
  enemyProjectiles = []
- sweepers = [new Enemy(
-    {x:500, y:200}
-)]
+sweepers = []
  platforms = [new Platform(
     { x:0, y:400, w:600, h:325}
 ), 
@@ -479,9 +482,10 @@ function animate(){
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
     healthBar.update()
-    sweepers.forEach(sweeper =>
-        sweeper.update())
-
+    sweepers.forEach(sweeper => {
+        sweeper.update()
+    })
+  
  
     
 
@@ -654,6 +658,35 @@ enemies.forEach(enemy =>{
     } 
 })
 
+// sweepers 
+sweepers.forEach(sweeper=>{
+    platforms.forEach(platform =>{
+        if (sweeper.position.y ===platform.position.y-20 && sweeper.position.x >= platform.position.x && sweeper.position.x +sweeper.width <= platform.position.x+platform.width){
+            sweepIndex = platforms.indexOf(platform)
+        }
+        if(sweeper.position.y === platforms[sweepIndex].position.y-20 && sweeper.position.x+sweeper.width>=platforms[sweepIndex].position.x+platforms[sweepIndex].width ){
+           sweeper.velocity.x= -2
+        } else if (sweeper.position.y === platforms[sweepIndex].position.y-20 && sweeper.position.x<=platforms[sweepIndex].position.x){
+            sweeper.velocity.x = 2
+        }
+        
+    })
+})
+sweepers.forEach( sweeper=> {
+    if(keys.right.pressed && player.position.x === 400 && sweeper.velocity.x===2){
+        sweeper.position.x -=5
+
+    } else if(keys.right.pressed && player.position.x === 400 && sweeper.velocity.x===-2){
+        sweeper.position.x -=5
+
+    } else if(keys.left.pressed && player.position.x === 100 && sweeper.velocity.x===2){
+        sweeper.position.x +=5
+
+    } else if(keys.right.pressed && player.position.x === 100 && sweeper.velocity.x===-2){
+        sweeper.position.x +=5
+
+    }
+})
 
 // spawn enemies
 
