@@ -3,7 +3,7 @@ console.log(canvas);
 const context = canvas.getContext('2d');
 
 // you can put this in css
-canvas.width = 1080;
+canvas.width = window.innerWidth;
 canvas.height = 608;
 
 //ads on to the velocity pushing *see the update function
@@ -177,7 +177,7 @@ class Sweeper{
             x: x, 
             y: y
         }
-        this.projectileVelocity
+        this.sweepIndex = 0
     }
     draw() {
         context.fillStyle = "green"
@@ -190,6 +190,18 @@ class Sweeper{
     
     
     }
+
+class FinishFlag{
+    constructor({x,y}){
+        this.position ={
+            x, 
+            y
+        }
+
+        this.width = 10
+        this.height = 200
+    }
+}
 // kinda obsolete... but I want it here in case. 
 // class Swarm{
 //     constructor() {
@@ -249,7 +261,7 @@ class HealthBar{
 
 //initiates our lubley objects
 let player = new Player();
-let sweepIndex = 0
+let finish = new FinishFlag({x:8600, y:0})
 player.health=100
 let enemies = [new Enemy(
     {x:835, y: 235}),
@@ -260,21 +272,30 @@ let enemies = [new Enemy(
     new Enemy(
         {x:3158, y: 55}),
     new Enemy(
-        {x:3700, y: 345}),
-    new Enemy(
         {x:4530, y: 355}),
     new Enemy(
         {x:5665, y: 255}),
     new Enemy(
-        {x:6100, y: 155}),
-    new Enemy(
-        {x:7002, y: 285}),
+        {x:6080, y: 155}),
     new Enemy(
         {x:7537, y: 385})
 ]
 let sweepers = [new Sweeper(
-    {x:0, y:380, v: 2}
-)]
+    {x:1160, y:500, v: 2}
+),
+new Sweeper(
+    {x:2680, y:320, v: 2}
+),
+new Sweeper(
+    {x:4100, y:280, v: 2}
+),
+new Sweeper(
+    {x:6600, y:280, v: 2}
+),
+new Sweeper(
+    {x:7950, y:295, v: 2}
+)
+]
 let healthBar = new HealthBar();
 let enemyProjectiles = []
 let platforms = [new Platform(
@@ -353,6 +374,9 @@ const keys = {
     },
     left: {
         pressed: false
+    },
+    down: {
+        pressed: false
     }
 }
 
@@ -363,14 +387,16 @@ let fcolliding= false
 let bcolliding= false
 
 
+// reset
 function init(){
 
 
  player = new Player();
+ finish = new FinishFlag({x:8600, y:0})
  player.health=100
 
 let healthBar = new HealthBar();
- enemies = [new Enemy(
+ enemies =  enemies = [new Enemy(
     {x:835, y: 235}),
     new Enemy(
         {x:2205, y: 345}),
@@ -379,20 +405,31 @@ let healthBar = new HealthBar();
     new Enemy(
         {x:3158, y: 55}),
     new Enemy(
-        {x:3700, y: 345}),
-    new Enemy(
         {x:4530, y: 355}),
     new Enemy(
         {x:5665, y: 255}),
     new Enemy(
-        {x:6100, y: 155}),
-    new Enemy(
-        {x:7002, y: 305}),
+        {x:6080, y: 155}),
     new Enemy(
         {x:7537, y: 385})
 ]
  enemyProjectiles = []
-sweepers = []
+ sweepers = [new Sweeper(
+    {x:1160, y:500, v: 2}
+),
+new Sweeper(
+    {x:2680, y:320, v: 2}
+),
+new Sweeper(
+    {x:4100, y:280, v: 2}
+),
+new Sweeper(
+    {x:6600, y:280, v: 2}
+),
+new Sweeper(
+    {x:7950, y:295, v: 2}
+)
+]
  platforms = [new Platform(
     { x:0, y:400, w:600, h:325}
 ), 
@@ -500,16 +537,17 @@ function animate(){
    }
 
     enemies.forEach ((enemy, i)=> {
-        if(player.attackbox.position.x + player.attackbox.width >= enemy.position.x && player.attackbox.position.x+player.attackbox.width-player.width <= enemy.position.x+enemy.width && player.attackbox.position.y+player.attackbox.height>= enemy.position.y && player.attackbox.position.y< enemy.position.y+enemy.height && player.isAttacking===true){
-            console.log('hit!')
+        if(keys.down.pressed===false && player.attackbox.position.x + player.attackbox.width >= enemy.position.x && player.attackbox.position.x+player.attackbox.width-player.width <= enemy.position.x+enemy.width && player.attackbox.position.y+player.attackbox.height>= enemy.position.y && player.attackbox.position.y< enemy.position.y+enemy.height && player.isAttacking===true){
             setTimeout(()=> {
+                
                 enemies.splice(i, 1)
             })
         }
       
     })
     
-
+    
+// enemies shoot
         enemies.forEach (enemy => {
             if (player.position.x < enemy.position.x) {
                 enemy.projectileVelocity= -10
@@ -613,8 +651,9 @@ enemies.forEach(enemy =>{
 
 
    
-    if(scrollOffset > 1000){
-        console.log("you win!");
+    if(player.position.x+player.width >= platforms[platforms.length-1].position.x+platforms[platforms.length-1].width%2){
+        alert("you win!!!");
+        init()
     }
 
 // lose
@@ -647,12 +686,12 @@ if(player.position.y > canvas.height) {
 
 // Collision with enemies 
 enemies.forEach(enemy =>{
-    if(keys.right.pressed && player.position.x+player.width >= enemy.position.x && player.position.x+player.width <enemy.position.x+enemy.width && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
+    if(player.position.x+player.width >= enemy.position.x && player.position.x+player.width <enemy.position.x+enemy.width && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
         player.position.x-= 10
         player.health-=1
     } 
 
-    else if(keys.left.pressed && player.position.x <= enemy.position.x+enemy.width && player.position.x+player.width >= enemy.position.x && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
+    else if(player.position.x <= enemy.position.x+enemy.width && player.position.x+player.width >= enemy.position.x && player.position.y < enemy.position.y + enemy.height && player.position.y +player.height >= enemy.position.y){
         player.position.x+= 10
         player.health-=1
     } 
@@ -662,16 +701,17 @@ enemies.forEach(enemy =>{
 sweepers.forEach(sweeper=>{
     platforms.forEach(platform =>{
         if (sweeper.position.y ===platform.position.y-20 && sweeper.position.x >= platform.position.x && sweeper.position.x +sweeper.width <= platform.position.x+platform.width){
-            sweepIndex = platforms.indexOf(platform)
+            sweeper.sweepIndex = platforms.indexOf(platform)
         }
-        if(sweeper.position.y === platforms[sweepIndex].position.y-20 && sweeper.position.x+sweeper.width>=platforms[sweepIndex].position.x+platforms[sweepIndex].width ){
+        if(sweeper.position.y === platforms[sweeper.sweepIndex].position.y-20 && sweeper.position.x+sweeper.width>=platforms[sweeper.sweepIndex].position.x+platforms[sweeper.sweepIndex].width ){
            sweeper.velocity.x= -2
-        } else if (sweeper.position.y === platforms[sweepIndex].position.y-20 && sweeper.position.x<=platforms[sweepIndex].position.x){
+        } else if (sweeper.position.y === platforms[sweeper.sweepIndex].position.y-20 && sweeper.position.x<=platforms[sweeper.sweepIndex].position.x){
             sweeper.velocity.x = 2
         }
         
     })
 })
+// scrolling compensation
 sweepers.forEach( sweeper=> {
     if(keys.right.pressed && player.position.x === 400 && sweeper.velocity.x===2){
         sweeper.position.x -=5
@@ -687,6 +727,37 @@ sweepers.forEach( sweeper=> {
 
     }
 })
+// collision with sweeper
+sweepers.forEach(sweeper =>{
+    if(player.position.x+player.width >= sweeper.position.x && player.position.x+player.width <sweeper.position.x+sweeper.width && player.position.y < sweeper.position.y + sweeper.height && player.position.y +player.height >= sweeper.position.y){
+        player.position.x-= 15
+        player.health-=5
+    } 
+
+    else if(player.position.x <= sweeper.position.x+sweeper.width && player.position.x+player.width >= sweeper.position.x && player.position.y < sweeper.position.y + sweeper.height && player.position.y +player.height >= sweeper.position.y){
+        player.position.x+= 15
+        player.health-=5
+    } 
+})
+
+// attacking sweeper
+if (player.facingLeft===true){
+    player.attackbox.width = -40
+   } 
+   else if (keys.right.pressed) {
+    player.attackbox.width = 70
+   }
+
+    sweepers.forEach ((sweeper, i)=> {
+        if(keys.down.pressed && player.attackbox.position.x + player.attackbox.width >= sweeper.position.x && player.attackbox.position.x+player.attackbox.width-player.width <= sweeper.position.x+sweeper.width && player.attackbox.position.y+player.attackbox.height>= sweeper.position.y && player.attackbox.position.y< sweeper.position.y+sweeper.height && player.isAttacking===true){
+            console.log('downstrike!')
+            setTimeout(()=> {
+                sweepers.splice(i, 1)
+            })
+        }
+      
+    })
+
 
 // spawn enemies
 
@@ -724,6 +795,7 @@ addEventListener("keydown", ({keyCode}) => {
             break
 
             case 83:
+            keys.down.pressed=true
             console.log ('down')
             break
 
@@ -751,16 +823,17 @@ addEventListener("keydown", ({keyCode}) => {
 addEventListener("keyup", ({keyCode}) => {
     switch (keyCode) {
         case 65:
-            console.log ('left')
+            console.log ('left release')
             keys.left.pressed=false
             break
 
             case 83:
-            console.log ('down')
+            keys.down.pressed=false
+            console.log ('down release')
             break
 
             case 68:
-            console.log ('right')
+            console.log ('right release')
             keys.right.pressed=false
             break
             
