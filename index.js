@@ -1,7 +1,15 @@
 const canvas = document.querySelector('canvas');
 console.log(canvas);
 const context = canvas.getContext('2d');
+const platformImage = document.getElementById("platformImage")
 
+const standRight = document.getElementById("standRight")
+
+const standLeft = document.getElementById("standLeft")
+
+const runRight = document.getElementById("runRight")
+
+const runLeft = document.getElementById("runLeft")
 // you can put this in css
 canvas.width = window.innerWidth;
 canvas.height = 608;
@@ -79,11 +87,11 @@ constructor({x,y,w,h}){
     this.velocity = 0
     this.width = w
     this.height = h
+    this.image = platformImage
 }
 
 draw() {
-    context.fillStyle = "blue"
-    context.fillRect(this.position.x, this.position.y, this.width, this.height)
+    context.drawImage(this.image, 0,0,this.width,this.height,this.position.x,this.position.y,this.width,this.height)
 }
 
     
