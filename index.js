@@ -10,6 +10,7 @@ const standLeft = document.getElementById("standLeft")
 const runRight = document.getElementById("runRight")
 
 const runLeft = document.getElementById("runLeft")
+let controllerIndex = null;
 // you can put this in css
 canvas.width = window.innerWidth;
 canvas.height = 608;
@@ -539,18 +540,66 @@ new Platform(
 
 
 // player.draw();
+  // controller inputs
+  function controllerInput(){
+    if(controllerIndex !== null){
+        const gamepad = navigator.getGamepads()[controllerIndex];
+        const buttons = gamepad.buttons;
+        const axes = gamepad.axes;
+        const leftrightvalue = axes[0]
+        const updownvalue = axes[1]
+        const stickdeadzone = 0.4
+        if(buttons[13].pressed || updownvalue>stickdeadzone){
+            keys.down.pressed=true
+            console.log("down")
+        } else{
+            keys.down.pressed=false
+        } if(buttons[14].pressed ||  leftrightvalue<=-stickdeadzone){
+            keys.left.pressed=true
+            player.currentSprite = player.sprites.run.left
+            player.facingLeft= true
+            console.log("left")
+        } else {
+            keys.left.pressed=false
+            if (player.facingLeft==true){
+                player.currentSprite = player.sprites.stand.left
+            } 
+               }  if(buttons[15].pressed || leftrightvalue>stickdeadzone){
+            keys.right.pressed=true
+            player.currentSprite = player.sprites.run.right
+            player.facingLeft=false
+            console.log("right")
+        } else {
+            keys.right.pressed=false
+        }
+
+        if(buttons[1].pressed){
+            if(player.velocity.y===0){
+                player.velocity.y -= 20
+                }
+        }
+        if(buttons[0].pressed){
+            player.attack()
+        }
+
+
+
+    }
+}
 
 
 
 // ----------------------ANIMATE------------------------//
 function animate(){
     requestAnimationFrame(animate)
+    controllerInput()
     context.clearRect(0, 0, canvas.width, canvas.height)
     player.update()
     healthBar.update()
     sweepers.forEach(sweeper => {
         sweeper.update()
     })
+  
   
  
     
@@ -816,6 +865,15 @@ animate()
 // A: 65, S: 83, D:68, W:87
 
 //event listeners 
+// gamepad connected 
+addEventListener("gamepadconnected", (event)=>{
+controllerIndex = event.gamepad.index;
+
+})
+addEventListener("gamepaddisconnected", (event)=>{
+    controllerIndex = null;
+    
+    })
 addEventListener("keydown", ({keyCode}) => {
     switch (keyCode) {
         case 65:
