@@ -29,8 +29,8 @@ class Player {
             x: 0,
             y: 0
         }
-        this.width = 70
-        this.height = 100
+        this.width = 50
+        this.height = 75
         this.isAttacking = false
         this.image = standRight
         this.sprites = {
@@ -134,7 +134,7 @@ class enemyProjectile{
         this.height=10
     }
     draw() {
-        context.fillStyle = "black"
+        context.fillStyle = "yellow"
         context.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
     update(){
