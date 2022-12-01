@@ -29,24 +29,41 @@ class Player {
             x: 0,
             y: 0
         }
-        this.width = 30
-        this.height = 30
+        this.width = 70
+        this.height = 100
         this.isAttacking = false
+        this.image = standRight
+        this.sprites = {
+            stand: {
+                right: standRight,
+                left: standLeft
+            },
+            run: {
+                right: runRight,
+                left: runLeft
+            }
+        }
+        this.currentSprite = this.sprites.stand.right
+        this.frames = 0
+        this.cyclerate = 140
 
         this.health = 50
         this.facingLeft = false
         this.attackbox = {
             position: this.position,
-            width: 70, 
-            height: 20
+            width: 100, 
+            height: this.height
         }
 
     }
 
     // this creates our character. Who is a red square right now. 
     draw(){
-        context.fillStyle = 'red';
-        context.fillRect(this.position.x, this.position.y, this.width, this.height)
+        if(keys.right.pressed || keys.left.pressed){
+            
+        context.drawImage(this.currentSprite, 140*this.frames , 0, 140 , 200, this.position.x,this.position.y, this.width, this.height)
+        } else
+        context.drawImage(this.currentSprite, 0, 0, 140 , 200, this.position.x,this.position.y, this.width, this.height)
 
         // attack box
         if (this.isAttacking===true){
@@ -57,6 +74,10 @@ class Player {
     }
     //puts velocity into position.
 update(){
+    this.frames ++
+    if (this.frames > 24){
+        this.frames =0
+    }
     this.position.y += this.velocity.y
     this.position.x += this.velocity.x
     this.draw()
@@ -753,7 +774,7 @@ if (player.facingLeft===true){
     player.attackbox.width = -40
    } 
    else if (keys.right.pressed) {
-    player.attackbox.width = 70
+    player.attackbox.width = 100
    }
 
     sweepers.forEach ((sweeper, i)=> {
@@ -800,6 +821,8 @@ addEventListener("keydown", ({keyCode}) => {
         case 65:
             console.log ('left')
             keys.left.pressed=true
+            keys.right.pressed=false
+            player.currentSprite = player.sprites.run.left
             break
 
             case 83:
@@ -810,6 +833,8 @@ addEventListener("keydown", ({keyCode}) => {
             case 68:
             console.log ('right')
             keys.right.pressed=true
+            keys.left.pressed = false
+            player.currentSprite = player.sprites.run.right
             break
             
             case 87:
@@ -833,6 +858,8 @@ addEventListener("keyup", ({keyCode}) => {
         case 65:
             console.log ('left release')
             keys.left.pressed=false
+            player.currentSprite = player.sprites.stand.left
+
             break
 
             case 83:
@@ -843,6 +870,7 @@ addEventListener("keyup", ({keyCode}) => {
             case 68:
             console.log ('right release')
             keys.right.pressed=false
+            player.currentSprite=player.sprites.stand.right
             break
             
             
