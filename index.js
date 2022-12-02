@@ -10,6 +10,16 @@ const standLeft = document.getElementById("standLeft")
 const runRight = document.getElementById("runRight")
 
 const runLeft = document.getElementById("runLeft")
+
+
+const attackRight = document.getElementById("attackRight")
+
+const attackLeft = document.getElementById("attackLeft")
+
+const downstrikeRight = document.getElementById("downstrikeRight")
+
+const downstrikeLeft = document.getElementById("downstrikeLeft")
+
 let controllerIndex = null;
 // you can put this in css
 canvas.width = window.innerWidth;
@@ -42,6 +52,14 @@ class Player {
             run: {
                 right: runRight,
                 left: runLeft
+            },
+            attack: {
+                right: attackRight,
+                left: attackLeft
+            },
+            strike:{
+                right: downstrikeRight,
+                left: downstrikeLeft
             }
         }
         this.currentSprite = this.sprites.stand.right
@@ -60,17 +78,34 @@ class Player {
 
     // this creates our character. Who is a red square right now. 
     draw(){
-        if(keys.right.pressed || keys.left.pressed){
+        console.log(this.facingLeft)
+        if(this.isAttacking == true && this.facingLeft  === false && keys.down.pressed){
+            context.drawImage(this.sprites.strike.right, 0, 0, 176 , 194, this.position.x,this.position.y, 65, 73)
+        } else if(this.isAttacking == true && this.facingLeft  === true && keys.down.pressed ){
+            context.drawImage(this.sprites.strike.left, 0, 0, 176 , 194, this.position.x-30,this.position.y, 65, 73)
+        } else
+        if(this.isAttacking == true && this.facingLeft  === false ){
+            context.drawImage(this.sprites.attack.right, 0, 0, 202 , 194, this.position.x,this.position.y, 70,73)
+        } else if(this.isAttacking == true && this.facingLeft  === true ){
+            context.drawImage(this.sprites.attack.left, 0, 0, 202 , 194, this.position.x-30,this.position.y, 70, 73)
+        } else
+        if(this.velocity.y !== 0 && this.facingLeft  === false ){
+            context.drawImage(this.sprites.run.right, 140*20, 0, 140 , 200, this.position.x,this.position.y, this.width, this.height)
+        } else if (this.velocity.y !== 0 && this.facingLeft  === true ){
+            context.drawImage(this.sprites.run.left, 140*20, 0, 140 , 200, this.position.x,this.position.y, this.width, this.height)
+        }  else
+        if(keys.right.pressed && this.velocity.y==0 || keys.left.pressed && this.velocity.y==0){
             
         context.drawImage(this.currentSprite, 140*this.frames , 0, 140 , 200, this.position.x,this.position.y, this.width, this.height)
-        } else
+        }   else
         context.drawImage(this.currentSprite, 0, 0, 140 , 200, this.position.x,this.position.y, this.width, this.height)
+        
 
         // attack box
-        if (this.isAttacking===true){
-        context.fillStyle='purple';
-        context.fillRect(this.attackbox.position.x, this.attackbox.position.y, this.attackbox.width, this.attackbox.height)
-        }
+        // if (this.isAttacking===true){
+        // context.fillStyle='purple';
+        // context.fillRect(this.attackbox.position.x, this.attackbox.position.y, this.attackbox.width, this.attackbox.height)
+        // }
         
     }
     //puts velocity into position.
@@ -571,6 +606,9 @@ new Platform(
             console.log("right")
         } else {
             keys.right.pressed=false
+            if (player.facingLeft==false){
+                player.currentSprite = player.sprites.stand.right
+            }
         }
 
         if(buttons[1].pressed){
@@ -673,9 +711,7 @@ function animate(){
 
     if (keys.left.pressed){
         player.facingLeft = true
-    } else {
-        player.facingLeft= false
-    }
+    } 
 
     if (keys.right.pressed && player.position.x <400){
         
@@ -729,7 +765,7 @@ enemies.forEach(enemy =>{
 
 
    
-    if(player.position.x+player.width >= platforms[platforms.length-1].position.x+platforms[platforms.length-1].width%2){
+    if(player.position.x+player.width >= platforms[platforms.length-1].position.x+400){
         alert("you win!!!");
         init()
     }
