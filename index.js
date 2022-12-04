@@ -1,6 +1,7 @@
 const canvas = document.querySelector('canvas');
 console.log(canvas);
 const context = canvas.getContext('2d');
+// importing the images
 const platformImage = document.getElementById("platformImage")
 
 const standRight = document.getElementById("standRight")
@@ -20,12 +21,27 @@ const downstrikeRight = document.getElementById("downstrikeRight")
 
 const downstrikeLeft = document.getElementById("downstrikeLeft")
 
+const sweeperImage = document.getElementById("sweeper")
+const blasterImage = document.getElementById("blaster")
+// importing audio
+
+const meganoid = document.getElementById("meganoid")
+const victory = document.getElementById("victory")
+
 let controllerIndex = null;
 // you can put this in css
 canvas.width = window.innerWidth;
 canvas.height = 608;
 
-//ads on to the velocity pushing *see the update function
+
+
+function stageMusic(){
+    meganoid.loop = true;
+    meganoid.load()
+    meganoid.play()
+}
+
+//ads on to the'/ velocity pushing *see the update function
 const gravity = 1;
 
 // creates Player object, this is the character we control
@@ -78,7 +94,6 @@ class Player {
 
     // this creates our character. Who is a red square right now. 
     draw(){
-        console.log(this.facingLeft)
         if(this.isAttacking == true && this.facingLeft  === false && keys.down.pressed){
             context.drawImage(this.sprites.strike.right, 0, 0, 176 , 194, this.position.x,this.position.y, 65, 73)
         } else if(this.isAttacking == true && this.facingLeft  === true && keys.down.pressed ){
@@ -189,7 +204,7 @@ class Enemy {
             x: 0,
             y: 0
         }
-        this.width= 30
+        this.width= 50
         this.height= 50
         this.position = {
             x: x, 
@@ -198,8 +213,7 @@ class Enemy {
         this.projectileVelocity
     }
     draw() {
-        context.fillStyle = "green"
-        context.fillRect(this.position.x, this.position.y, this.width, this.height)
+        context.drawImage(blasterImage, this.position.x, this.position.y, this.width, this.height)
     }
     update(){
         this.draw()
@@ -236,7 +250,7 @@ class Sweeper{
         this.velocity = {
             x: v,
         }
-        this.width= 50
+        this.width= 70
         this.height= 20
         this.position = {
             x: x, 
@@ -245,8 +259,7 @@ class Sweeper{
         this.sweepIndex = 0
     }
     draw() {
-        context.fillStyle = "green"
-        context.fillRect(this.position.x, this.position.y, this.width, this.height)
+        context.drawImage(sweeperImage, this.position.x, this.position.y, this.width, this.height)
     }
     update(){
         this.draw()
@@ -433,6 +446,7 @@ new Platform(
     { x:8400, y: 145, w: 700, h:480}
 )
 ];
+
 const keys = {
     right: {
         pressed: false
@@ -450,7 +464,7 @@ let onTopOf = false
 let frames = 0
 let fcolliding= false
 let bcolliding= false
-
+stageMusic()
 
 // reset
 function init(){
@@ -571,6 +585,7 @@ new Platform(
  fcolliding=false
  bcolliding=false
 
+ stageMusic()
 }
 
 
@@ -625,10 +640,13 @@ new Platform(
     }
 }
 
+// music
 
 
 // ----------------------ANIMATE------------------------//
 function animate(){
+    
+
     requestAnimationFrame(animate)
     controllerInput()
     context.clearRect(0, 0, canvas.width, canvas.height)
@@ -766,6 +784,9 @@ enemies.forEach(enemy =>{
 
    
     if(player.position.x+player.width >= platforms[platforms.length-1].position.x+400){
+        meganoid.pause()
+        victory.play()
+
         alert("you win!!!");
         init()
     }
@@ -890,11 +911,12 @@ if (player.health<=0){
 // end animate loop
 }
 
+// music 
+
 
 
 // calls animation function
 animate()
-
 
 
 // Keycodes
